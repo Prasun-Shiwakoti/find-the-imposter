@@ -1,0 +1,3112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<title>Find the Imposter</title>
+<style>
+:root{
+  --bg:#0b0d12;--panel:#12151d;--panel2:#181c26;--line:#272c38;
+  --text:#f5f7fb;--muted:#9aa2b1;--accent:#e8edf6;--accentText:#0b0d12;
+  --danger:#ff6b6b;--good:#64d99b;--warn:#ffd166;--radius:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{display:flex;justify-content:center}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{width:min(100%,760px);min-height:100dvh;padding:18px 16px 28px;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-size:15px;font-weight:750;letter-spacing:.02em}
+.badge{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:6px 9px;border-radius:999px}
+.screen{display:none;flex:1}
+.screen.active{display:flex;flex-direction:column}
+.hero{padding:18px 4px 6px}
+.kicker{text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-size:11px;font-weight:800;margin-bottom:8px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:clamp(31px,8vw,52px);line-height:.98;letter-spacing:-.04em;margin-bottom:14px}
+h2{font-size:26px;letter-spacing:-.03em;margin-bottom:8px}
+h3{font-size:17px;margin-bottom:6px}
+.subtitle{color:var(--muted);line-height:1.55;font-size:14px;max-width:620px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:14px}
+.row{display:flex;gap:10px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.space{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:10px}
+label{display:block;font-size:12px;font-weight:750;color:#c9ced8;margin-bottom:7px}
+input,select,textarea{width:100%;background:#0f1218;border:1px solid var(--line);border-radius:14px;color:var(--text);padding:12px 13px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#566173}
+textarea{min-height:100px;resize:vertical}
+.btn{border:0;border-radius:15px;padding:12px 15px;font-weight:800;transition:transform .08s ease,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);color:var(--accentText)}
+.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn.danger{background:rgba(255,107,107,.12);color:#ff9494;border:1px solid rgba(255,107,107,.25)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.full{width:100%}
+.small{font-size:12px;color:var(--muted)}
+.player-list{display:grid;gap:8px;margin-top:10px}
+.player{display:flex;align-items:center;gap:10px;background:#0f1218;border:1px solid var(--line);border-radius:14px;padding:10px 11px}
+.player-index{width:28px;height:28px;border-radius:9px;background:var(--panel2);display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--muted)}
+.player-name{flex:1;font-weight:700}
+.icon-btn{width:34px;height:34px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:10px}
+.add-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.category-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
+.cat-option{position:relative}
+.cat-option input{position:absolute;opacity:0;pointer-events:none}
+.cat-option label{display:flex;align-items:center;gap:8px;margin:0;padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:#0f1218;color:#c9ced8;font-size:12px;font-weight:750;cursor:pointer}
+.cat-option label::before{content:"";width:15px;height:15px;border:1px solid #48505d;border-radius:5px;display:inline-block;flex:0 0 15px}
+.cat-option input:checked + label{background:#202631;border-color:#596373;color:#fff}
+.cat-option input:checked + label::before{background:#e8edf6;border-color:#e8edf6;box-shadow:inset 0 0 0 3px #202631}
+.cat-option.all-option label{font-weight:850}
+.vote-grid.multi .vote-btn{position:relative}
+.vote-selection-note{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.45}
+@media(max-width:460px){.settings-grid{grid-template-columns:1fr}.category-options{grid-template-columns:1fr 1fr}}
+.check{display:flex;align-items:flex-start;gap:9px;margin-top:9px;color:#cbd0d9;font-size:12px;line-height:1.45}
+.check input{width:auto;margin-top:2px}
+.notice{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);color:#e8d79b;border-radius:14px;padding:10px 12px;font-size:12px;line-height:1.45;margin-top:12px}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:calc(100dvh - 150px)}
+.card-zone{width:min(100%,420px);margin:18px auto 16px;perspective:1100px}
+.secret-card{position:relative;height:390px;cursor:pointer}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.secret-card.flipped .card-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:28px;border:1px solid #2d3440;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px}
+.face.back{background:linear-gradient(145deg,#1a1e28,#0f1218)}
+.face.front{transform:rotateY(180deg);background:linear-gradient(145deg,#f4f6f9,#cfd6e0);color:#0a0d12}
+.face .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:900;opacity:.6;margin-bottom:10px}
+.face .secret{font-size:clamp(38px,10vw,64px);font-weight:900;letter-spacing:-.05em;line-height:1}
+.face .hint{font-size:16px;margin-top:14px;font-weight:750}
+.face.back .secret{font-size:30px}
+.card-instruction{margin-top:16px;color:var(--muted);font-size:13px;line-height:1.45}
+.flip-state{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--line);padding:7px 10px;border-radius:999px;font-size:11px;color:var(--muted);margin-top:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:#5f6878}
+.dot.on{background:var(--good)}
+.progress{height:6px;border-radius:99px;background:#1a1e27;overflow:hidden;margin:12px 0 18px}
+.progress>span{display:block;height:100%;background:#d8dee8;border-radius:inherit;transition:width .25s}
+.action-bar{display:flex;gap:9px;margin-top:auto;padding-top:14px;position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 20%)}
+.action-bar .btn{flex:1}
+.role{border-radius:18px;padding:18px;border:1px solid var(--line);margin-top:12px}
+.role.civilian{background:rgba(100,217,155,.06);border-color:rgba(100,217,155,.22)}
+.role.imposter{background:rgba(255,107,107,.06);border-color:rgba(255,107,107,.22)}
+.role-name{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:900;color:var(--muted)}
+.role-main{font-size:32px;font-weight:900;letter-spacing:-.04em;margin-top:4px}
+.timer{font-variant-numeric:tabular-nums;font-size:38px;letter-spacing:-.04em;font-weight:900}
+.phase-card{padding:20px;border-radius:24px;background:var(--panel);border:1px solid var(--line);margin-top:16px}
+.vote-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.vote-btn{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:16px;padding:14px;font-weight:750}
+.vote-btn.selected{border-color:#dce2ea;background:#252a34;color:#fff}
+.vote-btn small{display:block;color:var(--muted);font-weight:600;margin-top:3px}
+.result-icon{font-size:56px;margin-bottom:10px}
+.score-table{margin-top:12px}
+.score-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.score-row:last-child{border-bottom:0}
+.toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,20px);background:#f5f7fb;color:#0b0d12;padding:10px 13px;border-radius:12px;font-size:12px;font-weight:800;opacity:0;pointer-events:none;transition:.22s;z-index:20}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.hide{display:none!important}
+.divider{height:1px;background:var(--line);margin:16px 0}
+.inline-note{color:var(--muted);font-size:12px}
+.linkbtn{background:none;border:0;color:#cfd6e0;padding:0;text-decoration:underline}
+@media(min-width:650px){.app{padding:24px}.player-list{grid-template-columns:1fr 1fr}.vote-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">FIND THE IMPOSTER</div>
+    <div id="topBadge" class="badge">Local · one device</div>
+  </div>
+
+  <section id="setup" class="screen active">
+    <div class="hero">
+      <div class="kicker">Party game · pass & play</div>
+      <h1>Trust no one.</h1>
+      <p class="subtitle">Everyone gets the same secret word. The imposter gets only a hint. Give one-word clues, discuss, vote, and see who was bluffing.</p>
+    </div>
+
+    <div class="panel">
+      <div class="row space">
+        <div>
+          <h3>Players</h3>
+          <div class="small">3–20 players</div>
+        </div>
+        <button id="clearPlayers" class="btn ghost" type="button">Clear</button>
+      </div>
+      <div id="playerList" class="player-list"></div>
+      <div class="add-row">
+        <input id="playerInput" placeholder="Player name" maxlength="22" autocomplete="off">
+        <button id="addPlayer" class="btn secondary" type="button">Add</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Round settings</h3>
+      <div class="settings-grid">
+        <div>
+          <label for="imposterCount">Imposters</label>
+          <select id="imposterCount">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="random">Random</option>
+          </select>
+        </div>
+        <div>
+          <label for="difficulty">Hint difficulty</label>
+          <select id="difficulty">
+            <option value="easy">Easy · clear</option>
+            <option value="medium" selected>Medium · indirect</option>
+            <option value="hard">Hard · subtle</option>
+          </select>
+        </div>
+        <div>
+          <label>Categories</label>
+          <div id="categoryOptions" class="category-options"></div>
+        </div>
+        <div>
+          <label for="roundTime">Discussion timer</label>
+          <select id="roundTime">
+            <option value="0">No timer</option>
+            <option value="120">2 minutes</option>
+            <option value="180" selected>3 minutes</option>
+            <option value="300">5 minutes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="check">
+        <input id="randomStart" type="checkbox" checked>
+        <span>Randomize who starts the clue round.</span>
+      </div>
+      <div class="check">
+        <input id="revealHint" type="checkbox" checked>
+        <span>Show the imposter's hint on the final reveal.</span>
+      </div>
+      <div class="check">
+        <input id="impostersKnowEachOther" type="checkbox">
+        <span>Let imposters know who the other imposter(s) are during their private reveal.</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="row space">
+        <div>
+          <h3>Custom word deck</h3>
+          <div class="small">Add your own category + secret word + hint.</div>
+        </div>
+        <button id="toggleCustom" class="btn secondary" type="button">Add</button>
+      </div>
+      <div id="customForm" class="stack hide" style="margin-top:12px">
+        <div>
+          <label for="customCategory">Category</label>
+          <input id="customCategory" placeholder="e.g. Movies">
+        </div>
+        <div>
+          <label for="customWord">Secret word</label>
+          <input id="customWord" placeholder="e.g. Interstellar">
+        </div>
+        <div>
+          <label for="customHint">Imposter hint</label>
+          <input id="customHint" placeholder="e.g. Space">
+        </div>
+        <div class="row">
+          <button id="saveCustom" class="btn primary" type="button">Save word</button>
+          <button id="cancelCustom" class="btn ghost" type="button">Cancel</button>
+        </div>
+      </div>
+      <div id="customSummary" class="inline-note" style="margin-top:10px"></div>
+    </div>
+
+    <div class="action-bar" style="position:static">
+      <button id="startGame" class="btn primary full" type="button">Start game</button>
+    </div>
+  </section>
+
+  <section id="reveal" class="screen">
+    <div class="hero">
+      <div class="kicker">Private reveal</div>
+      <h2>Pass the phone.</h2>
+      <p id="revealSub" class="subtitle">Only the named player should look at this card.</p>
+      <div class="progress"><span id="revealProgress" style="width:0%"></span></div>
+    </div>
+
+    <div class="card-zone">
+      <div id="secretCard" class="secret-card" role="button" tabindex="0" aria-label="Secret player card">
+        <div class="card-inner">
+          <div class="face back">
+            <div class="eyebrow">For your eyes only</div>
+            <div id="backPlayer" class="secret">PLAYER</div>
+            <div class="card-instruction">Tap once to reveal your role.</div>
+          </div>
+          <div class="face front">
+            <div id="frontEyebrow" class="eyebrow">Your word</div>
+            <div id="frontSecret" class="secret">WORD</div>
+            <div id="frontHint" class="hint"></div>
+            <div id="frontPartners" class="hint hide"></div>
+            <div class="card-instruction" style="color:#4f5661">Memorize it. Tap the card again to hide it.</div>
+          </div>
+        </div>
+      </div>
+      <div class="flip-state"><span id="flipDot" class="dot"></span><span id="flipLabel">Not viewed yet</span></div>
+    </div>
+
+    <div id="passNote" class="notice hide">Card hidden. Pass the phone to the next player before continuing.</div>
+
+    <div class="action-bar">
+      <button id="revealDone" class="btn primary full" type="button" disabled>Reveal my card</button>
+      <button id="nextPlayer" class="btn primary full hide" type="button">Next player</button>
+    </div>
+  </section>
+
+  <section id="briefing" class="screen">
+    <div class="center">
+      <div class="kicker">Round started</div>
+      <h2>Everyone has a role.</h2>
+      <p class="subtitle">Put the phone down. Go around the group and give exactly one clue word each. The imposter is listening.</p>
+      <div class="phase-card">
+        <div class="small">Secret category</div>
+        <div id="briefCategory" class="role-main" style="font-size:26px">Category</div>
+        <div class="divider"></div>
+        <div class="small">Suggested starting player</div>
+        <div id="startingPlayer" style="font-size:20px;font-weight:850;margin-top:4px">Player</div>
+      </div>
+      <div class="action-bar" style="position:static;width:100%">
+        <button id="startDiscussion" class="btn primary full" type="button">Start discussion</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="discussion" class="screen">
+    <div class="hero">
+      <div class="kicker">Clue round</div>
+      <div class="row space">
+        <div>
+          <h2>Listen carefully.</h2>
+          <p class="subtitle">One word per player. Keep clues useful, but do not say the secret word.</p>
+        </div>
+        <div id="timer" class="timer">∞</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row space">
+        <div><b id="clueTurnName">Starting player</b><div class="small">Say one clue word now.</div></div>
+        <div id="turnCounter" class="badge">1 / 1</div>
+      </div>
+      <div class="divider"></div>
+      <p class="small">The app does not record clues. Keep the discussion face-to-face.</p>
+    </div>
+    <div class="action-bar">
+      <button id="pauseTimer" class="btn secondary" type="button">Pause</button>
+      <button id="finishDiscussion" class="btn primary" type="button">Go to vote</button>
+    </div>
+  </section>
+
+  <section id="vote" class="screen">
+    <div class="hero">
+      <div class="kicker">Vote</div>
+      <h2>Who is the imposter?</h2>
+      <p class="subtitle">Discuss first. Select everyone you believe is an imposter, then lock the group's final vote.</p>
+    </div>
+    <div class="panel">
+      <div id="voteGrid" class="vote-grid"></div>
+      <div class="action-bar" style="position:static">
+        <button id="lockVote" class="btn primary full" type="button" disabled>Lock in vote</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="verdict" class="screen">
+    <div class="center" style="min-height:0;padding-top:14px">
+      <div class="kicker">The verdict</div>
+      <div id="verdictIcon" class="result-icon">?</div>
+      <h2 id="verdictTitle">Reveal</h2>
+      <p id="verdictText" class="subtitle"></p>
+      <div id="verdictRole" class="role"></div>
+      <div class="action-bar" style="position:static;width:100%;margin-top:12px">
+        <button id="revealSolution" class="btn primary full" type="button">Reveal imposter</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="guess" class="screen">
+    <div class="hero">
+      <div class="kicker">Last chance</div>
+      <h2>Imposter, guess the word.</h2>
+      <p class="subtitle">You were caught. One correct guess steals the round.</p>
+    </div>
+    <div class="panel">
+      <label for="guessInput">Secret word</label>
+      <input id="guessInput" placeholder="Type your guess" maxlength="40" autocomplete="off">
+      <div class="action-bar" style="position:static">
+        <button id="submitGuess" class="btn primary full" type="button">Submit guess</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen">
+    <div class="center" style="min-height:0;padding-top:14px">
+      <div id="resultIcon" class="result-icon">•</div>
+      <div id="resultKicker" class="kicker">Round over</div>
+      <h2 id="resultTitle">Crew wins</h2>
+      <p id="resultText" class="subtitle"></p>
+      <div class="panel full">
+        <div class="small">Secret word</div>
+        <div id="resultWord" style="font-size:32px;font-weight:900;letter-spacing:-.04em;margin-top:3px">Word</div>
+        <div class="divider"></div>
+        <div class="small">Imposter(s)</div>
+        <div id="resultImposter" style="font-size:20px;font-weight:850;margin-top:3px">Player</div>
+        <div id="resultHint" class="small" style="margin-top:6px"></div>
+      </div>
+      <div class="panel full">
+        <div class="row space"><h3 style="margin:0">Scores</h3><span class="small">This session</span></div>
+        <div id="scoreTable" class="score-table"></div>
+      </div>
+      <div class="action-bar" style="position:static;width:100%;flex-wrap:wrap">
+        <button id="newRound" class="btn primary full" type="button">Play another round</button>
+        <button id="backSetup" class="btn ghost full" type="button">Back to setup</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ---------- DATA: add more categories/words here later ---------- */
+const BASE_DECK = [
+  // =========================
+  // FOOD
+  // =========================
+  {
+    category: "Food",
+    word: "Pizza",
+    hints: {
+      easy: "Italian",
+      medium: "Cheese",
+      hard: "Round"
+    }
+  },
+  {
+    category: "Food",
+    word: "Burger",
+    hints: {
+      easy: "Fast food",
+      medium: "Layers",
+      hard: "Bun"
+    }
+  },
+  {
+    category: "Food",
+    word: "Sushi",
+    hints: {
+      easy: "Japanese",
+      medium: "Rice",
+      hard: "Roll"
+    }
+  },
+  {
+    category: "Food",
+    word: "Momo",
+    hints: {
+      easy: "Nepali",
+      medium: "Steamed",
+      hard: "Wrapper"
+    }
+  },
+  {
+    category: "Food",
+    word: "Pasta",
+    hints: {
+      easy: "Italian",
+      medium: "Sauce",
+      hard: "Strands"
+    }
+  },
+  {
+    category: "Food",
+    word: "Taco",
+    hints: {
+      easy: "Mexican",
+      medium: "Shell",
+      hard: "Folded"
+    }
+  },
+  {
+    category: "Food",
+    word: "French Fries",
+    hints: {
+      easy: "Fast food",
+      medium: "Salt",
+      hard: "Sticks"
+    }
+  },
+  {
+    category: "Food",
+    word: "Fried Rice",
+    hints: {
+      easy: "Asian",
+      medium: "Wok",
+      hard: "Leftovers"
+    }
+  },
+  {
+    category: "Food",
+    word: "Ramen",
+    hints: {
+      easy: "Japanese",
+      medium: "Broth",
+      hard: "Noodles"
+    }
+  },
+  {
+    category: "Food",
+    word: "Dumpling",
+    hints: {
+      easy: "Asian",
+      medium: "Filling",
+      hard: "Pocket"
+    }
+  },
+  {
+    category: "Food",
+    word: "Hot Dog",
+    hints: {
+      easy: "Fast food",
+      medium: "Sausage",
+      hard: "Long"
+    }
+  },
+  {
+    category: "Food",
+    word: "Popcorn",
+    hints: {
+      easy: "Movie snack",
+      medium: "Butter",
+      hard: "Explodes"
+    }
+  },
+  {
+    category: "Food",
+    word: "Ice Cream",
+    hints: {
+      easy: "Dessert",
+      medium: "Cold",
+      hard: "Scoop"
+    }
+  },
+  {
+    category: "Food",
+    word: "Chocolate",
+    hints: {
+      easy: "Sweet",
+      medium: "Melt",
+      hard: "Bar"
+    }
+  },
+  {
+    category: "Food",
+    word: "Cake",
+    hints: {
+      easy: "Dessert",
+      medium: "Birthday",
+      hard: "Layers"
+    }
+  },
+  {
+    category: "Food",
+    word: "Donut",
+    hints: {
+      easy: "Sweet",
+      medium: "Glazed",
+      hard: "Hole"
+    }
+  },
+  {
+    category: "Food",
+    word: "Pancake",
+    hints: {
+      easy: "Breakfast",
+      medium: "Syrup",
+      hard: "Stack"
+    }
+  },
+  {
+    category: "Food",
+    word: "Waffle",
+    hints: {
+      easy: "Breakfast",
+      medium: "Syrup",
+      hard: "Grid"
+    }
+  },
+  {
+    category: "Food",
+    word: "Noodles",
+    hints: {
+      easy: "Asian",
+      medium: "Bowl",
+      hard: "Strands"
+    }
+  },
+  {
+    category: "Food",
+    word: "Biryani",
+    hints: {
+      easy: "South Asian",
+      medium: "Spices",
+      hard: "Layered"
+    }
+  },
+
+  // =========================
+  // DRINKS
+  // =========================
+  {
+    category: "Drinks",
+    word: "Coffee",
+    hints: {
+      easy: "Morning",
+      medium: "Bitter",
+      hard: "Beans"
+    }
+  },
+  {
+    category: "Drinks",
+    word: "Tea",
+    hints: {
+      easy: "Hot",
+      medium: "Leaves",
+      hard: "Cup"
+    }
+  },
+  {
+    category: "Drinks",
+    word: "Lemonade",
+    hints: {
+      easy: "Refreshing",
+      medium: "Sour",
+      hard: "Yellow"
+    }
+  },
+  {
+    category: "Drinks",
+    word: "Milkshake",
+    hints: {
+      easy: "Dessert drink",
+      medium: "Thick",
+      hard: "Straw"
+    }
+  },
+  {
+    category: "Drinks",
+    word: "Coconut Water",
+    hints: {
+      easy: "Tropical",
+      medium: "Refreshing",
+      hard: "Inside"
+    }
+  },
+  {
+    category: "Drinks",
+    word: "Orange Juice",
+    hints: {
+      easy: "Breakfast",
+      medium: "Citrus",
+      hard: "Pulp"
+    }
+  },
+  {
+    category: "Drinks",
+    word: "Smoothie",
+    hints: {
+      easy: "Healthy",
+      medium: "Blended",
+      hard: "Thick"
+    }
+  },
+  {
+    category: "Drinks",
+    word: "Hot Chocolate",
+    hints: {
+      easy: "Winter",
+      medium: "Sweet",
+      hard: "Marshmallow"
+    }
+  },
+
+  // =========================
+  // ANIMALS
+  // =========================
+  {
+    category: "Animals",
+    word: "Lion",
+    hints: {
+      easy: "Wild",
+      medium: "Roar",
+      hard: "Mane"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Tiger",
+    hints: {
+      easy: "Wild",
+      medium: "Stripes",
+      hard: "Orange"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Elephant",
+    hints: {
+      easy: "Large",
+      medium: "Trunk",
+      hard: "Wrinkles"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Giraffe",
+    hints: {
+      easy: "Tall",
+      medium: "Spots",
+      hard: "Neck"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Penguin",
+    hints: {
+      easy: "Cold",
+      medium: "Swimming",
+      hard: "Tuxedo"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Dolphin",
+    hints: {
+      easy: "Ocean",
+      medium: "Intelligent",
+      hard: "Echolocation"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Shark",
+    hints: {
+      easy: "Ocean",
+      medium: "Dangerous",
+      hard: "Fins"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Octopus",
+    hints: {
+      easy: "Ocean",
+      medium: "Intelligent",
+      hard: "Tentacles"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Kangaroo",
+    hints: {
+      easy: "Australia",
+      medium: "Jumping",
+      hard: "Pouch"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Panda",
+    hints: {
+      easy: "China",
+      medium: "Bamboo",
+      hard: "Black-white"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Monkey",
+    hints: {
+      easy: "Primate",
+      medium: "Jungle",
+      hard: "Climbing"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Wolf",
+    hints: {
+      easy: "Wild",
+      medium: "Pack",
+      hard: "Howling"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Eagle",
+    hints: {
+      easy: "Bird",
+      medium: "Flying",
+      hard: "Talons"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Owl",
+    hints: {
+      easy: "Bird",
+      medium: "Night",
+      hard: "Silent"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Snake",
+    hints: {
+      easy: "Reptile",
+      medium: "Danger",
+      hard: "Slithering"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Frog",
+    hints: {
+      easy: "Small",
+      medium: "Jumping",
+      hard: "Croak"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Butterfly",
+    hints: {
+      easy: "Insect",
+      medium: "Colorful",
+      hard: "Metamorphosis"
+    }
+  },
+  {
+    category: "Animals",
+    word: "Bee",
+    hints: {
+      easy: "Insect",
+      medium: "Honey",
+      hard: "Buzz"
+    }
+  },
+
+  // =========================
+  // PLACES
+  // =========================
+  {
+    category: "Places",
+    word: "Beach",
+    hints: {
+      easy: "Vacation",
+      medium: "Sand",
+      hard: "Waves"
+    }
+  },
+  {
+    category: "Places",
+    word: "Mountain",
+    hints: {
+      easy: "Nature",
+      medium: "Climbing",
+      hard: "Peak"
+    }
+  },
+  {
+    category: "Places",
+    word: "Airport",
+    hints: {
+      easy: "Travel",
+      medium: "Security",
+      hard: "Runway"
+    }
+  },
+  {
+    category: "Places",
+    word: "Hospital",
+    hints: {
+      easy: "Medical",
+      medium: "Doctors",
+      hard: "Emergency"
+    }
+  },
+  {
+    category: "Places",
+    word: "Library",
+    hints: {
+      easy: "Books",
+      medium: "Quiet",
+      hard: "Shelves"
+    }
+  },
+  {
+    category: "Places",
+    word: "School",
+    hints: {
+      easy: "Education",
+      medium: "Students",
+      hard: "Bell"
+    }
+  },
+  {
+    category: "Places",
+    word: "Cinema",
+    hints: {
+      easy: "Entertainment",
+      medium: "Dark",
+      hard: "Screen"
+    }
+  },
+  {
+    category: "Places",
+    word: "Restaurant",
+    hints: {
+      easy: "Food",
+      medium: "Menu",
+      hard: "Table"
+    }
+  },
+  {
+    category: "Places",
+    word: "Gym",
+    hints: {
+      easy: "Exercise",
+      medium: "Weights",
+      hard: "Mirrors"
+    }
+  },
+  {
+    category: "Places",
+    word: "Museum",
+    hints: {
+      easy: "History",
+      medium: "Artifacts",
+      hard: "Exhibits"
+    }
+  },
+  {
+    category: "Places",
+    word: "Prison",
+    hints: {
+      easy: "Restricted",
+      medium: "Guards",
+      hard: "Bars"
+    }
+  },
+  {
+    category: "Places",
+    word: "Supermarket",
+    hints: {
+      easy: "Shopping",
+      medium: "Aisles",
+      hard: "Cart"
+    }
+  },
+  {
+    category: "Places",
+    word: "Hotel",
+    hints: {
+      easy: "Travel",
+      medium: "Room",
+      hard: "Key"
+    }
+  },
+  {
+    category: "Places",
+    word: "Temple",
+    hints: {
+      easy: "Religion",
+      medium: "Prayer",
+      hard: "Incense"
+    }
+  },
+
+  // =========================
+  // OBJECTS
+  // =========================
+  {
+    category: "Objects",
+    word: "Umbrella",
+    hints: {
+      easy: "Rain",
+      medium: "Opening",
+      hard: "Canopy"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Backpack",
+    hints: {
+      easy: "Travel",
+      medium: "School",
+      hard: "Straps"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Mirror",
+    hints: {
+      easy: "Reflection",
+      medium: "Glass",
+      hard: "Image"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Clock",
+    hints: {
+      easy: "Time",
+      medium: "Numbers",
+      hard: "Hands"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Camera",
+    hints: {
+      easy: "Photos",
+      medium: "Lens",
+      hard: "Shutter"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Keyboard",
+    hints: {
+      easy: "Computer",
+      medium: "Typing",
+      hard: "Keys"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Headphones",
+    hints: {
+      easy: "Music",
+      medium: "Audio",
+      hard: "Ears"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Backpack",
+    hints: {
+      easy: "Travel",
+      medium: "Shoulders",
+      hard: "Zippers"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Candle",
+    hints: {
+      easy: "Light",
+      medium: "Wax",
+      hard: "Flame"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Pillow",
+    hints: {
+      easy: "Sleep",
+      medium: "Soft",
+      hard: "Head"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Blanket",
+    hints: {
+      easy: "Warm",
+      medium: "Sleep",
+      hard: "Cover"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Wallet",
+    hints: {
+      easy: "Money",
+      medium: "Cards",
+      hard: "Pocket"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Suitcase",
+    hints: {
+      easy: "Travel",
+      medium: "Packing",
+      hard: "Wheels"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Toothbrush",
+    hints: {
+      easy: "Bathroom",
+      medium: "Morning",
+      hard: "Bristles"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Key",
+    hints: {
+      easy: "Lock",
+      medium: "Metal",
+      hard: "Turn"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Scissors",
+    hints: {
+      easy: "Tool",
+      medium: "Cutting",
+      hard: "Blades"
+    }
+  },
+  {
+    category: "Objects",
+    word: "Backpack",
+    hints: {
+      easy: "Bag",
+      medium: "Straps",
+      hard: "Carrying"
+    }
+  },
+
+  // =========================
+  // TECHNOLOGY
+  // =========================
+  {
+    category: "Technology",
+    word: "Smartphone",
+    hints: {
+      easy: "Communication",
+      medium: "Apps",
+      hard: "Pocket"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Laptop",
+    hints: {
+      easy: "Computer",
+      medium: "Portable",
+      hard: "Keyboard"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Robot",
+    hints: {
+      easy: "Machine",
+      medium: "Automation",
+      hard: "Metal"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Internet",
+    hints: {
+      easy: "Online",
+      medium: "Network",
+      hard: "Invisible"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Wi-Fi",
+    hints: {
+      easy: "Internet",
+      medium: "Wireless",
+      hard: "Signal"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Drone",
+    hints: {
+      easy: "Flying",
+      medium: "Camera",
+      hard: "Remote"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Printer",
+    hints: {
+      easy: "Office",
+      medium: "Paper",
+      hard: "Ink"
+    }
+  },
+  {
+    category: "Technology",
+    word: "USB Drive",
+    hints: {
+      easy: "Storage",
+      medium: "Computer",
+      hard: "Portable"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Virtual Reality",
+    hints: {
+      easy: "Gaming",
+      medium: "Immersive",
+      hard: "Headset"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Satellite",
+    hints: {
+      easy: "Space",
+      medium: "Orbit",
+      hard: "Signal"
+    }
+  },
+  {
+    category: "Technology",
+    word: "AI",
+    hints: {
+      easy: "Technology",
+      medium: "Learning",
+      hard: "Prediction"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Password",
+    hints: {
+      easy: "Security",
+      medium: "Secret",
+      hard: "Login"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Server",
+    hints: {
+      easy: "Computers",
+      medium: "Requests",
+      hard: "Backend"
+    }
+  },
+  {
+    category: "Technology",
+    word: "Database",
+    hints: {
+      easy: "Data",
+      medium: "Storage",
+      hard: "Tables"
+    }
+  },
+
+  // =========================
+  // SPORTS
+  // =========================
+  {
+    category: "Sports",
+    word: "Football",
+    hints: {
+      easy: "Sport",
+      medium: "Goal",
+      hard: "Offside"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Basketball",
+    hints: {
+      easy: "Sport",
+      medium: "Court",
+      hard: "Dribble"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Cricket",
+    hints: {
+      easy: "Sport",
+      medium: "Bat",
+      hard: "Wicket"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Tennis",
+    hints: {
+      easy: "Sport",
+      medium: "Racket",
+      hard: "Deuce"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Volleyball",
+    hints: {
+      easy: "Sport",
+      medium: "Net",
+      hard: "Rotation"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Swimming",
+    hints: {
+      easy: "Sport",
+      medium: "Water",
+      hard: "Laps"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Boxing",
+    hints: {
+      easy: "Sport",
+      medium: "Fighting",
+      hard: "Rounds"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Golf",
+    hints: {
+      easy: "Sport",
+      medium: "Grass",
+      hard: "Hole"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Archery",
+    hints: {
+      easy: "Sport",
+      medium: "Target",
+      hard: "Bullseye"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Skiing",
+    hints: {
+      easy: "Winter",
+      medium: "Snow",
+      hard: "Slopes"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Surfing",
+    hints: {
+      easy: "Ocean",
+      medium: "Waves",
+      hard: "Board"
+    }
+  },
+  {
+    category: "Sports",
+    word: "Table Tennis",
+    hints: {
+      easy: "Indoor",
+      medium: "Paddle",
+      hard: "Fast"
+    }
+  },
+
+  // =========================
+  // MOVIES & TV
+  // =========================
+  {
+    category: "Movies & TV",
+    word: "Titanic",
+    hints: {
+      easy: "Movie",
+      medium: "Ship",
+      hard: "Iceberg"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Avatar",
+    hints: {
+      easy: "Movie",
+      medium: "Blue",
+      hard: "Pandora"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Harry Potter",
+    hints: {
+      easy: "Movie",
+      medium: "Magic",
+      hard: "Scar"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Batman",
+    hints: {
+      easy: "Superhero",
+      medium: "Night",
+      hard: "Gotham"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Spider-Man",
+    hints: {
+      easy: "Superhero",
+      medium: "Web",
+      hard: "Climbing"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "The Simpsons",
+    hints: {
+      easy: "TV show",
+      medium: "Family",
+      hard: "Yellow"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Breaking Bad",
+    hints: {
+      easy: "TV show",
+      medium: "Chemistry",
+      hard: "Desert"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Stranger Things",
+    hints: {
+      easy: "TV show",
+      medium: "Mystery",
+      hard: "Upside Down"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "The Office",
+    hints: {
+      easy: "Comedy",
+      medium: "Workplace",
+      hard: "Paper"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Game of Thrones",
+    hints: {
+      easy: "TV show",
+      medium: "Fantasy",
+      hard: "Throne"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Wednesday",
+    hints: {
+      easy: "TV show",
+      medium: "School",
+      hard: "Gothic"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Squid Game",
+    hints: {
+      easy: "TV show",
+      medium: "Competition",
+      hard: "Green"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Home Alone",
+    hints: {
+      easy: "Comedy",
+      medium: "Christmas",
+      hard: "Traps"
+    }
+  },
+  {
+    category: "Movies & TV",
+    word: "Jurassic Park",
+    hints: {
+      easy: "Movie",
+      medium: "Island",
+      hard: "Fossils"
+    }
+  },
+
+  // =========================
+  // MUSIC
+  // =========================
+  {
+    category: "Music",
+    word: "Guitar",
+    hints: {
+      easy: "Instrument",
+      medium: "Strings",
+      hard: "Frets"
+    }
+  },
+  {
+    category: "Music",
+    word: "Piano",
+    hints: {
+      easy: "Instrument",
+      medium: "Keys",
+      hard: "Pedals"
+    }
+  },
+  {
+    category: "Music",
+    word: "Drums",
+    hints: {
+      easy: "Instrument",
+      medium: "Rhythm",
+      hard: "Sticks"
+    }
+  },
+  {
+    category: "Music",
+    word: "Violin",
+    hints: {
+      easy: "Instrument",
+      medium: "Strings",
+      hard: "Bow"
+    }
+  },
+  {
+    category: "Music",
+    word: "Microphone",
+    hints: {
+      easy: "Music",
+      medium: "Voice",
+      hard: "Feedback"
+    }
+  },
+  {
+    category: "Music",
+    word: "Concert",
+    hints: {
+      easy: "Music",
+      medium: "Crowd",
+      hard: "Stage"
+    }
+  },
+  {
+    category: "Music",
+    word: "DJ",
+    hints: {
+      easy: "Music",
+      medium: "Club",
+      hard: "Mixing"
+    }
+  },
+  {
+    category: "Music",
+    word: "Karaoke",
+    hints: {
+      easy: "Singing",
+      medium: "Lyrics",
+      hard: "Screen"
+    }
+  },
+
+  // =========================
+  // SCHOOL / COLLEGE
+  // =========================
+  {
+    category: "School & College",
+    word: "Exam",
+    hints: {
+      easy: "Education",
+      medium: "Stress",
+      hard: "Paper"
+    }
+  },
+  {
+    category: "School & College",
+    word: "Professor",
+    hints: {
+      easy: "Education",
+      medium: "Lecture",
+      hard: "Grades"
+    }
+  },
+  {
+    category: "School & College",
+    word: "Homework",
+    hints: {
+      easy: "School",
+      medium: "Deadline",
+      hard: "Assignment"
+    }
+  },
+  {
+    category: "School & College",
+    word: "Library",
+    hints: {
+      easy: "Books",
+      medium: "Quiet",
+      hard: "Study"
+    }
+  },
+  {
+    category: "School & College",
+    word: "Graduation",
+    hints: {
+      easy: "Education",
+      medium: "Celebration",
+      hard: "Cap"
+    }
+  },
+  {
+    category: "School & College",
+    word: "Laboratory",
+    hints: {
+      easy: "Science",
+      medium: "Experiments",
+      hard: "Beakers"
+    }
+  },
+  {
+    category: "School & College",
+    word: "Project",
+    hints: {
+      easy: "College",
+      medium: "Deadline",
+      hard: "Presentation"
+    }
+  },
+  {
+    category: "School & College",
+    word: "Canteen",
+    hints: {
+      easy: "Food",
+      medium: "Students",
+      hard: "Break"
+    }
+  },
+
+  // =========================
+  // NATURE
+  // =========================
+  {
+    category: "Nature",
+    word: "Rainbow",
+    hints: {
+      easy: "Weather",
+      medium: "Colors",
+      hard: "Arc"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Volcano",
+    hints: {
+      easy: "Nature",
+      medium: "Mountain",
+      hard: "Lava"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Waterfall",
+    hints: {
+      easy: "Nature",
+      medium: "Water",
+      hard: "Cliff"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Forest",
+    hints: {
+      easy: "Nature",
+      medium: "Trees",
+      hard: "Canopy"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Desert",
+    hints: {
+      easy: "Nature",
+      medium: "Dry",
+      hard: "Dunes"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Ocean",
+    hints: {
+      easy: "Water",
+      medium: "Waves",
+      hard: "Depth"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Thunderstorm",
+    hints: {
+      easy: "Weather",
+      medium: "Lightning",
+      hard: "Boom"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Snow",
+    hints: {
+      easy: "Winter",
+      medium: "Cold",
+      hard: "Flakes"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Sunset",
+    hints: {
+      easy: "Sky",
+      medium: "Evening",
+      hard: "Horizon"
+    }
+  },
+  {
+    category: "Nature",
+    word: "Moon",
+    hints: {
+      easy: "Night",
+      medium: "Sky",
+      hard: "Crater"
+    }
+  },
+
+  // =========================
+  // JOBS / PROFESSIONS
+  // =========================
+  {
+    category: "Professions",
+    word: "Doctor",
+    hints: {
+      easy: "Medical",
+      medium: "Patients",
+      hard: "Diagnosis"
+    }
+  },
+  {
+    category: "Professions",
+    word: "Engineer",
+    hints: {
+      easy: "Technical",
+      medium: "Design",
+      hard: "Blueprint"
+    }
+  },
+  {
+    category: "Professions",
+    word: "Teacher",
+    hints: {
+      easy: "Education",
+      medium: "Classroom",
+      hard: "Lesson"
+    }
+  },
+  {
+    category: "Professions",
+    word: "Chef",
+    hints: {
+      easy: "Food",
+      medium: "Kitchen",
+      hard: "Knife"
+    }
+  },
+  {
+    category: "Professions",
+    word: "Pilot",
+    hints: {
+      easy: "Travel",
+      medium: "Aircraft",
+      hard: "Cockpit"
+    }
+  },
+  {
+    category: "Professions",
+    word: "Police Officer",
+    hints: {
+      easy: "Law",
+      medium: "Uniform",
+      hard: "Badge"
+    }
+  },
+  {
+    category: "Professions",
+    word: "Architect",
+    hints: {
+      easy: "Design",
+      medium: "Buildings",
+      hard: "Blueprint"
+    }
+  },
+  {
+    category: "Professions",
+    word: "Photographer",
+    hints: {
+      easy: "Photos",
+      medium: "Camera",
+      hard: "Lens"
+    }
+  },
+  {
+    category: "Professions",
+    word: "Firefighter",
+    hints: {
+      easy: "Emergency",
+      medium: "Fire",
+      hard: "Hose"
+    }
+  },
+
+  // =========================
+  // TRANSPORT
+  // =========================
+  {
+    category: "Transport",
+    word: "Car",
+    hints: {
+      easy: "Vehicle",
+      medium: "Road",
+      hard: "Steering"
+    }
+  },
+  {
+    category: "Transport",
+    word: "Bus",
+    hints: {
+      easy: "Public transport",
+      medium: "Passengers",
+      hard: "Stops"
+    }
+  },
+  {
+    category: "Transport",
+    word: "Train",
+    hints: {
+      easy: "Transport",
+      medium: "Tracks",
+      hard: "Carriages"
+    }
+  },
+  {
+    category: "Transport",
+    word: "Airplane",
+    hints: {
+      easy: "Travel",
+      medium: "Airport",
+      hard: "Wings"
+    }
+  },
+  {
+    category: "Transport",
+    word: "Bicycle",
+    hints: {
+      easy: "Vehicle",
+      medium: "Exercise",
+      hard: "Pedals"
+    }
+  },
+  {
+    category: "Transport",
+    word: "Motorcycle",
+    hints: {
+      easy: "Vehicle",
+      medium: "Helmet",
+      hard: "Two wheels"
+    }
+  },
+  {
+    category: "Transport",
+    word: "Boat",
+    hints: {
+      easy: "Water",
+      medium: "Travel",
+      hard: "Hull"
+    }
+  },
+  {
+    category: "Transport",
+    word: "Helicopter",
+    hints: {
+      easy: "Aircraft",
+      medium: "Flying",
+      hard: "Blades"
+    }
+  },
+
+  // =========================
+  // COUNTRY / CITY
+  // =========================
+  {
+    category: "Countries & Cities",
+    word: "Nepal",
+    hints: {
+      easy: "Country",
+      medium: "Himalayas",
+      hard: "Landlocked"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "Japan",
+    hints: {
+      easy: "Country",
+      medium: "Asia",
+      hard: "Islands"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "India",
+    hints: {
+      easy: "Country",
+      medium: "Asia",
+      hard: "Spices"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "France",
+    hints: {
+      easy: "Country",
+      medium: "Europe",
+      hard: "Eiffel"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "Brazil",
+    hints: {
+      easy: "Country",
+      medium: "Football",
+      hard: "Amazon"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "Australia",
+    hints: {
+      easy: "Country",
+      medium: "Oceania",
+      hard: "Outback"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "Kathmandu",
+    hints: {
+      easy: "City",
+      medium: "Nepal",
+      hard: "Valley"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "London",
+    hints: {
+      easy: "City",
+      medium: "England",
+      hard: "Underground"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "New York",
+    hints: {
+      easy: "City",
+      medium: "America",
+      hard: "Manhattan"
+    }
+  },
+  {
+    category: "Countries & Cities",
+    word: "Dubai",
+    hints: {
+      easy: "City",
+      medium: "Luxury",
+      hard: "Desert"
+    }
+  },
+
+  // =========================
+  // CLOTHING
+  // =========================
+  {
+    category: "Clothing",
+    word: "Jeans",
+    hints: {
+      easy: "Clothing",
+      medium: "Denim",
+      hard: "Pockets"
+    }
+  },
+  {
+    category: "Clothing",
+    word: "T-Shirt",
+    hints: {
+      easy: "Clothing",
+      medium: "Casual",
+      hard: "Sleeves"
+    }
+  },
+  {
+    category: "Clothing",
+    word: "Jacket",
+    hints: {
+      easy: "Clothing",
+      medium: "Winter",
+      hard: "Zipper"
+    }
+  },
+  {
+    category: "Clothing",
+    word: "Sneakers",
+    hints: {
+      easy: "Shoes",
+      medium: "Sports",
+      hard: "Laces"
+    }
+  },
+  {
+    category: "Clothing",
+    word: "Hat",
+    hints: {
+      easy: "Clothing",
+      medium: "Head",
+      hard: "Brim"
+    }
+  },
+  {
+    category: "Clothing",
+    word: "Sunglasses",
+    hints: {
+      easy: "Accessory",
+      medium: "Summer",
+      hard: "Tint"
+    }
+  },
+  {
+    category: "Clothing",
+    word: "Tie",
+    hints: {
+      easy: "Formal",
+      medium: "Suit",
+      hard: "Knot"
+    }
+  },
+  {
+    category: "Clothing",
+    word: "Scarf",
+    hints: {
+      easy: "Winter",
+      medium: "Warm",
+      hard: "Neck"
+    }
+  },
+
+  // =========================
+  // HOUSEHOLD
+  // =========================
+  {
+    category: "Household",
+    word: "Refrigerator",
+    hints: {
+      easy: "Kitchen",
+      medium: "Cold",
+      hard: "Shelves"
+    }
+  },
+  {
+    category: "Household",
+    word: "Television",
+    hints: {
+      easy: "Entertainment",
+      medium: "Screen",
+      hard: "Remote"
+    }
+  },
+  {
+    category: "Household",
+    word: "Washing Machine",
+    hints: {
+      easy: "Laundry",
+      medium: "Water",
+      hard: "Spin"
+    }
+  },
+  {
+    category: "Household",
+    word: "Microwave",
+    hints: {
+      easy: "Kitchen",
+      medium: "Heating",
+      hard: "Timer"
+    }
+  },
+  {
+    category: "Household",
+    word: "Vacuum Cleaner",
+    hints: {
+      easy: "Cleaning",
+      medium: "Floor",
+      hard: "Suction"
+    }
+  },
+  {
+    category: "Household",
+    word: "Sofa",
+    hints: {
+      easy: "Furniture",
+      medium: "Living room",
+      hard: "Cushions"
+    }
+  },
+  {
+    category: "Household",
+    word: "Bed",
+    hints: {
+      easy: "Sleep",
+      medium: "Bedroom",
+      hard: "Mattress"
+    }
+  },
+  {
+    category: "Household",
+    word: "Lamp",
+    hints: {
+      easy: "Light",
+      medium: "Room",
+      hard: "Shade"
+    }
+  },
+
+  // =========================
+  // INTERNET / SOCIAL MEDIA
+  // =========================
+  {
+    category: "Internet & Social Media",
+    word: "YouTube",
+    hints: {
+      easy: "Website",
+      medium: "Videos",
+      hard: "Creators"
+    }
+  },
+  {
+    category: "Internet & Social Media",
+    word: "TikTok",
+    hints: {
+      easy: "Social media",
+      medium: "Videos",
+      hard: "Scroll"
+    }
+  },
+  {
+    category: "Internet & Social Media",
+    word: "Instagram",
+    hints: {
+      easy: "Social media",
+      medium: "Photos",
+      hard: "Stories"
+    }
+  },
+  {
+    category: "Internet & Social Media",
+    word: "Discord",
+    hints: {
+      easy: "Communication",
+      medium: "Servers",
+      hard: "Channels"
+    }
+  },
+  {
+    category: "Internet & Social Media",
+    word: "Reddit",
+    hints: {
+      easy: "Website",
+      medium: "Community",
+      hard: "Subreddit"
+    }
+  },
+  {
+    category: "Internet & Social Media",
+    word: "Meme",
+    hints: {
+      easy: "Internet",
+      medium: "Funny",
+      hard: "Template"
+    }
+  },
+  {
+    category: "Internet & Social Media",
+    word: "Influencer",
+    hints: {
+      easy: "Internet",
+      medium: "Followers",
+      hard: "Sponsorship"
+    }
+  },
+  {
+    category: "Internet & Social Media",
+    word: "Viral",
+    hints: {
+      easy: "Internet",
+      medium: "Popular",
+      hard: "Rapid"
+    }
+  },
+
+  // =========================
+  // MYTHICAL / FANTASY
+  // =========================
+  {
+    category: "Fantasy",
+    word: "Dragon",
+    hints: {
+      easy: "Mythical",
+      medium: "Fire",
+      hard: "Scales"
+    }
+  },
+  {
+    category: "Fantasy",
+    word: "Unicorn",
+    hints: {
+      easy: "Mythical",
+      medium: "Horse",
+      hard: "Horn"
+    }
+  },
+  {
+    category: "Fantasy",
+    word: "Wizard",
+    hints: {
+      easy: "Magic",
+      medium: "Spells",
+      hard: "Staff"
+    }
+  },
+  {
+    category: "Fantasy",
+    word: "Vampire",
+    hints: {
+      easy: "Monster",
+      medium: "Night",
+      hard: "Fangs"
+    }
+  },
+  {
+    category: "Fantasy",
+    word: "Werewolf",
+    hints: {
+      easy: "Monster",
+      medium: "Moon",
+      hard: "Transformation"
+    }
+  },
+  {
+    category: "Fantasy",
+    word: "Mermaid",
+    hints: {
+      easy: "Mythical",
+      medium: "Ocean",
+      hard: "Tail"
+    }
+  },
+  {
+    category: "Fantasy",
+    word: "Fairy",
+    hints: {
+      easy: "Magic",
+      medium: "Tiny",
+      hard: "Wings"
+    }
+  },
+  {
+    category: "Fantasy",
+    word: "Castle",
+    hints: {
+      easy: "Fantasy",
+      medium: "Royal",
+      hard: "Towers"
+    }
+  },
+
+  // =========================
+  // GAMES
+  // =========================
+  {
+    category: "Games",
+    word: "Chess",
+    hints: {
+      easy: "Board game",
+      medium: "Strategy",
+      hard: "Checkmate"
+    }
+  },
+  {
+    category: "Games",
+    word: "Monopoly",
+    hints: {
+      easy: "Board game",
+      medium: "Money",
+      hard: "Properties"
+    }
+  },
+  {
+    category: "Games",
+    word: "Minecraft",
+    hints: {
+      easy: "Video game",
+      medium: "Building",
+      hard: "Blocks"
+    }
+  },
+  {
+    category: "Games",
+    word: "Tetris",
+    hints: {
+      easy: "Video game",
+      medium: "Blocks",
+      hard: "Lines"
+    }
+  },
+  {
+    category: "Games",
+    word: "Among Us",
+    hints: {
+      easy: "Video game",
+      medium: "Imposter",
+      hard: "Tasks"
+    }
+  },
+  {
+    category: "Games",
+    word: "Pokémon",
+    hints: {
+      easy: "Video game",
+      medium: "Creatures",
+      hard: "Pikachu"
+    }
+  },
+  {
+    category: "Games",
+    word: "UNO",
+    hints: {
+      easy: "Card game",
+      medium: "Colors",
+      hard: "Draw Four"
+    }
+  },
+  {
+    category: "Games",
+    word: "Jenga",
+    hints: {
+      easy: "Game",
+      medium: "Blocks",
+      hard: "Balance"
+    }
+  },
+  {
+    category: "Games",
+    word: "Ludo",
+    hints: {
+      easy: "Board game",
+      medium: "Dice",
+      hard: "Tokens"
+    }
+  },
+
+  // =========================
+  // SUPERHEROES
+  // =========================
+  {
+    category: "Superheroes",
+    word: "Superman",
+    hints: {
+      easy: "Superhero",
+      medium: "Flying",
+      hard: "Kryptonite"
+    }
+  },
+  {
+    category: "Superheroes",
+    word: "Iron Man",
+    hints: {
+      easy: "Marvel",
+      medium: "Technology",
+      hard: "Arc reactor"
+    }
+  },
+  {
+    category: "Superheroes",
+    word: "Thor",
+    hints: {
+      easy: "Marvel",
+      medium: "Lightning",
+      hard: "Hammer"
+    }
+  },
+  {
+    category: "Superheroes",
+    word: "Hulk",
+    hints: {
+      easy: "Marvel",
+      medium: "Strong",
+      hard: "Green"
+    }
+  },
+  {
+    category: "Superheroes",
+    word: "Wonder Woman",
+    hints: {
+      easy: "DC",
+      medium: "Warrior",
+      hard: "Lasso"
+    }
+  },
+  {
+    category: "Superheroes",
+    word: "Flash",
+    hints: {
+      easy: "DC",
+      medium: "Fast",
+      hard: "Lightning"
+    }
+  },
+  {
+    category: "Superheroes",
+    word: "Black Panther",
+    hints: {
+      easy: "Marvel",
+      medium: "Wakanda",
+      hard: "Vibranium"
+    }
+  },
+
+  // =========================
+  // EMOTIONS / ABSTRACT
+  // =========================
+  {
+    category: "Emotions",
+    word: "Happiness",
+    hints: {
+      easy: "Emotion",
+      medium: "Smile",
+      hard: "Joy"
+    }
+  },
+  {
+    category: "Emotions",
+    word: "Fear",
+    hints: {
+      easy: "Emotion",
+      medium: "Danger",
+      hard: "Adrenaline"
+    }
+  },
+  {
+    category: "Emotions",
+    word: "Anger",
+    hints: {
+      easy: "Emotion",
+      medium: "Frustration",
+      hard: "Heat"
+    }
+  },
+  {
+    category: "Emotions",
+    word: "Love",
+    hints: {
+      easy: "Emotion",
+      medium: "Relationship",
+      hard: "Heart"
+    }
+  },
+  {
+    category: "Emotions",
+    word: "Jealousy",
+    hints: {
+      easy: "Emotion",
+      medium: "Envy",
+      hard: "Green"
+    }
+  },
+  {
+    category: "Emotions",
+    word: "Embarrassment",
+    hints: {
+      easy: "Emotion",
+      medium: "Awkward",
+      hard: "Blushing"
+    }
+  },
+  {
+    category: "Emotions",
+    word: "Nostalgia",
+    hints: {
+      easy: "Feeling",
+      medium: "Past",
+      hard: "Memories"
+    }
+  },
+
+  // =========================
+  // EVERYDAY ACTIVITIES
+  // =========================
+  {
+    category: "Activities",
+    word: "Sleeping",
+    hints: {
+      easy: "Rest",
+      medium: "Bed",
+      hard: "Dreams"
+    }
+  },
+  {
+    category: "Activities",
+    word: "Cooking",
+    hints: {
+      easy: "Kitchen",
+      medium: "Food",
+      hard: "Heat"
+    }
+  },
+  {
+    category: "Activities",
+    word: "Shopping",
+    hints: {
+      easy: "Activity",
+      medium: "Money",
+      hard: "Cart"
+    }
+  },
+  {
+    category: "Activities",
+    word: "Dancing",
+    hints: {
+      easy: "Movement",
+      medium: "Music",
+      hard: "Rhythm"
+    }
+  },
+  {
+    category: "Activities",
+    word: "Swimming",
+    hints: {
+      easy: "Exercise",
+      medium: "Water",
+      hard: "Strokes"
+    }
+  },
+  {
+    category: "Activities",
+    word: "Reading",
+    hints: {
+      easy: "Activity",
+      medium: "Books",
+      hard: "Pages"
+    }
+  },
+  {
+    category: "Activities",
+    word: "Camping",
+    hints: {
+      easy: "Outdoor",
+      medium: "Nature",
+      hard: "Tent"
+    }
+  },
+  {
+    category: "Activities",
+    word: "Hiking",
+    hints: {
+      easy: "Outdoor",
+      medium: "Walking",
+      hard: "Trail"
+    }
+  },
+
+  // =========================
+  // HOLIDAYS / EVENTS
+  // =========================
+  {
+    category: "Holidays & Events",
+    word: "Birthday",
+    hints: {
+      easy: "Celebration",
+      medium: "Cake",
+      hard: "Candles"
+    }
+  },
+  {
+    category: "Holidays & Events",
+    word: "Wedding",
+    hints: {
+      easy: "Celebration",
+      medium: "Couple",
+      hard: "Vows"
+    }
+  },
+  {
+    category: "Holidays & Events",
+    word: "Christmas",
+    hints: {
+      easy: "Holiday",
+      medium: "Gifts",
+      hard: "December"
+    }
+  },
+  {
+    category: "Holidays & Events",
+    word: "Halloween",
+    hints: {
+      easy: "Holiday",
+      medium: "Costumes",
+      hard: "Pumpkin"
+    }
+  },
+  {
+    category: "Holidays & Events",
+    word: "New Year",
+    hints: {
+      easy: "Celebration",
+      medium: "Midnight",
+      hard: "Countdown"
+    }
+  },
+  {
+    category: "Holidays & Events",
+    word: "Festival",
+    hints: {
+      easy: "Celebration",
+      medium: "Crowd",
+      hard: "Stalls"
+    }
+  },
+
+  // =========================
+  // NEPAL
+  // =========================
+  {
+    category: "Nepal",
+    word: "Everest",
+    hints: {
+      easy: "Mountain",
+      medium: "Nepal",
+      hard: "Summit"
+    }
+  },
+  {
+    category: "Nepal",
+    word: "Pokhara",
+    hints: {
+      easy: "City",
+      medium: "Tourism",
+      hard: "Lakes"
+    }
+  },
+  {
+    category: "Nepal",
+    word: "Lumbini",
+    hints: {
+      easy: "Nepal",
+      medium: "Pilgrimage",
+      hard: "Birthplace"
+    }
+  },
+  {
+    category: "Nepal",
+    word: "Dashain",
+    hints: {
+      easy: "Festival",
+      medium: "Family",
+      hard: "Tika"
+    }
+  },
+  {
+    category: "Nepal",
+    word: "Tihar",
+    hints: {
+      easy: "Festival",
+      medium: "Lights",
+      hard: "Diyas"
+    }
+  },
+  {
+    category: "Nepal",
+    word: "Kathmandu Valley",
+    hints: {
+      easy: "Nepal",
+      medium: "Heritage",
+      hard: "Temples"
+    }
+  },
+  {
+    category: "Nepal",
+    word: "Sherpa",
+    hints: {
+      easy: "Nepal",
+      medium: "Mountains",
+      hard: "Climbing"
+    }
+  },
+  {
+    category: "Nepal",
+    word: "Yak",
+    hints: {
+      easy: "Animal",
+      medium: "Himalayas",
+      hard: "Fur"
+    }
+  }
+];
+
+let customDeck = JSON.parse(localStorage.getItem("fti_custom_deck") || "[]");
+let players = JSON.parse(localStorage.getItem("fti_players") || "[]");
+if (!Array.isArray(players) || players.length < 1) players = ["Alex","Sam","Jordan","Taylor"];
+let scores = JSON.parse(localStorage.getItem("fti_scores") || "{}");
+
+const $ = id => document.getElementById(id);
+const screens = ["setup","reveal","briefing","discussion","vote","verdict","guess","result"];
+const state = {
+  round:null, revealIndex:0, flipped:false, selectedVote:null, caught:false,
+  timer:0, timerId:null, timerPaused:false, winner:null
+};
+
+function showScreen(id){
+  screens.forEach(s => $(s).classList.toggle("active", s===id));
+  window.scrollTo({top:0,behavior:"instant"});
+}
+function toast(msg){
+  const t=$("toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),1800);
+}
+function save(){
+  localStorage.setItem("fti_players",JSON.stringify(players));
+  localStorage.setItem("fti_scores",JSON.stringify(scores));
+}
+function renderPlayers(){
+  const list=$("playerList");
+  list.innerHTML="";
+  players.forEach((name,i)=>{
+    const row=document.createElement("div");row.className="player";
+    row.innerHTML=`<div class="player-index">${i+1}</div><div class="player-name">${escapeHtml(name)}</div><button class="icon-btn" aria-label="Remove ${escapeAttr(name)}" data-remove="${i}">×</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll("[data-remove]").forEach(btn=>btn.addEventListener("click",()=>{
+    const i=Number(btn.dataset.remove); players.splice(i,1); save(); renderPlayers(); updateStartAvailability();
+  }));
+  updateStartAvailability();
+}
+function updateStartAvailability(){
+  $("startGame").disabled=players.length<3 || players.length>20;
+}
+function populateCategories(){
+  const wrap=$("categoryOptions");
+  const cats=[...new Set([...BASE_DECK,...customDeck].map(x=>x.category))];
+  wrap.innerHTML="";
+  const makeOption=(value,label,checked=false,extraClass="")=>{
+    const id="cat_"+value.toLowerCase().replace(/[^a-z0-9]+/g,"_");
+    const box=document.createElement("div");
+    box.className=`cat-option ${extraClass}`.trim();
+    box.innerHTML=`<input type="checkbox" id="${id}" value="${escapeAttr(value)}" ${checked?"checked":""}><label for="${id}">${escapeHtml(label)}</label>`;
+    wrap.appendChild(box);
+  };
+  makeOption("__all__","All",true,"all-option");
+  cats.forEach(c=>makeOption(c,c,false));
+  wrap.querySelectorAll("input").forEach(cb=>{
+    cb.addEventListener("change",()=>{
+      const all=wrap.querySelector('input[value="__all__"]');
+      const others=[...wrap.querySelectorAll('input:not([value="__all__"])')];
+      if(cb.value==="__all__") others.forEach(x=>x.checked=all.checked);
+      else all.checked=others.length>0 && others.every(x=>x.checked);
+    });
+  });
+  $("customSummary").textContent=customDeck.length ? `${customDeck.length} custom word${customDeck.length===1?"":"s"} saved.` : "No custom words yet.";
+}
+function getSelectedCategories(){
+  const checked=[...document.querySelectorAll('#categoryOptions input:checked')].map(x=>x.value);
+  return checked.includes("__all__") || !checked.length
+    ? [...new Set([...BASE_DECK,...customDeck].map(x=>x.category))]
+    : checked;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function escapeAttr(s){return escapeHtml(s);}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function pickRoundWord(categories){
+  const deck=[...BASE_DECK,...customDeck].filter(x=>categories.includes(x.category));
+  return deck[Math.floor(Math.random()*deck.length)];
+}
+function randomImposters(count){
+  const ids=shuffle([...Array(players.length).keys()]);
+  return new Set(ids.slice(0,count));
+}
+
+/* Sound cues: generated locally with Web Audio, no external assets. */
+let audioCtx=null;
+function tone(freq=440,dur=.08,type="sine",gain=.035){
+  try{
+    audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type=type;o.frequency.value=freq;g.gain.value=gain;
+    o.connect(g);g.connect(audioCtx.destination);o.start();
+    g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+dur);
+    o.stop(audioCtx.currentTime+dur);
+  }catch(e){}
+}
+function sound(name){
+  if(name==="flip"){tone(520,.06,"triangle");setTimeout(()=>tone(700,.05,"triangle"),55);}
+  if(name==="pass"){tone(340,.07,"sine");setTimeout(()=>tone(460,.07,"sine"),75);}
+  if(name==="start"){tone(420,.08,"triangle");setTimeout(()=>tone(620,.1,"triangle"),90);setTimeout(()=>tone(820,.14,"triangle"),200);}
+  if(name==="reveal"){tone(280,.1,"sawtooth");setTimeout(()=>tone(180,.18,"sawtooth"),110);}
+  if(name==="win"){tone(560,.08,"triangle");setTimeout(()=>tone(740,.09,"triangle"),90);setTimeout(()=>tone(980,.18,"triangle"),190);}
+}
+
+/* Setup */
+$("addPlayer").addEventListener("click",()=>{
+  const v=$("playerInput").value.trim();
+  if(!v)return;
+  if(players.some(p=>p.toLowerCase()===v.toLowerCase())){toast("That name is already in the list.");return;}
+  if(players.length>=20){toast("Maximum 20 players.");return;}
+  players.push(v);$("playerInput").value="";save();renderPlayers();$("playerInput").focus();
+});
+$("playerInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("addPlayer").click()});
+$("clearPlayers").addEventListener("click",()=>{players=[];save();renderPlayers()});
+$("toggleCustom").addEventListener("click",()=>{$("customForm").classList.toggle("hide")});
+$("cancelCustom").addEventListener("click",()=>{$("customForm").classList.add("hide")});
+$("saveCustom").addEventListener("click",()=>{
+  const category=$("customCategory").value.trim(),word=$("customWord").value.trim(),hint=$("customHint").value.trim();
+  if(!category||!word||!hint){toast("Fill in category, word and hint.");return;}
+  customDeck.push({category,word,hints:{easy:hint,medium:hint,hard:hint}});
+  localStorage.setItem("fti_custom_deck",JSON.stringify(customDeck));
+  ["customCategory","customWord","customHint"].forEach(id=>$(id).value="");
+  $("customForm").classList.add("hide");populateCategories();toast("Custom word saved.");
+});
+$("startGame").addEventListener("click",startGame);
+
+function startGame(){
+  if(players.length<3){toast("Add at least 3 players.");return}
+  const selectedCategories=getSelectedCategories();
+  const maxImposters=Math.max(1,Math.floor(players.length/3));
+  const countSetting=$("imposterCount").value;
+  const requested=countSetting==="random"
+    ? (Math.floor(Math.random()*maxImposters)+1)
+    : Math.min(Number(countSetting),maxImposters);
+  const entry=pickRoundWord(selectedCategories);
+  const imposterIds=randomImposters(requested);
+
+  state.round={
+    categories:selectedCategories,
+    categoryLabel:selectedCategories.length===1?selectedCategories[0]:"Mixed",
+    word:entry.word,
+    hint:entry.hints[$("difficulty").value]||entry.hints.medium,
+    imposterIds,
+    actualImposterCount:requested,
+    randomImposters:countSetting==="random",
+    impostersKnowEachOther:$("impostersKnowEachOther").checked,
+    startingIndex:$("randomStart").checked?Math.floor(Math.random()*players.length):0,
+    discussionTime:Number($("roundTime").value),vote:null
+  };
+
+  players.forEach(p=>{if(scores[p]==null)scores[p]=0;});
+  state.revealIndex=0;state.flipped=false;state.selectedVote=[];
+  state.caughtIds=[];state.uncaughtIds=[];state.allCaught=false;
+  state.caught=false;state.winner=null;
+  save();sound("start");prepareReveal();showScreen("reveal");
+}
+function prepareReveal(){
+  const i=state.revealIndex,name=players[i],imposter=state.round.imposterIds.has(i);
+  $("revealSub").textContent=`Player ${i+1} of ${players.length} — hand the phone to ${name}.`;
+  $("backPlayer").textContent=name.toUpperCase();
+  $("frontEyebrow").textContent=imposter?"You are the imposter":"Your secret word";
+  $("frontSecret").textContent=imposter?"IMPOSTER":state.round.word;
+  $("frontHint").textContent=imposter?`Hint: ${state.round.hint}`:"";
+
+  const partners=[...state.round.imposterIds].filter(id=>id!==i).map(id=>players[id]);
+  if(imposter && state.round.impostersKnowEachOther && partners.length){
+    $("frontPartners").textContent=`Other imposter${partners.length>1?"s":""}: ${partners.join(", ")}`;
+    $("frontPartners").classList.remove("hide");
+  }else{
+    $("frontPartners").textContent="";
+    $("frontPartners").classList.add("hide");
+  }
+
+  $("secretCard").classList.remove("flipped");
+  state.flipped=false;
+  $("flipDot").classList.remove("on");
+  $("flipLabel").textContent="Not viewed yet";
+  $("revealDone").disabled=true;
+  $("revealDone").classList.remove("hide");
+  $("revealDone").textContent="Reveal my card";
+  $("nextPlayer").classList.add("hide");
+  $("passNote").classList.add("hide");
+  $("revealProgress").style.width=`${(i/players.length)*100}%`;
+}
+function flipCard(){
+  if(state.flipped)return;
+  state.flipped=true;$("secretCard").classList.add("flipped");
+  $("flipDot").classList.add("on");$("flipLabel").textContent="Viewed — tap again to hide";
+  $("revealDone").disabled=false;$("revealDone").textContent="Hide my card";
+  sound("flip");
+}
+function hideCard(){
+  if(!state.flipped)return;
+  state.flipped=false;$("secretCard").classList.remove("flipped");
+  $("flipLabel").textContent="Viewed and hidden";$("passNote").classList.remove("hide");
+  $("revealDone").classList.add("hide");$("nextPlayer").classList.remove("hide");
+  sound("pass");
+}
+$("secretCard").addEventListener("click",()=>{ if(!state.flipped)flipCard(); else hideCard(); });
+$("secretCard").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("secretCard").click();}});
+$("revealDone").addEventListener("click",hideCard);
+$("nextPlayer").addEventListener("click",()=>{
+  state.revealIndex++;
+  if(state.revealIndex>=players.length){startBriefing();return;}
+  prepareReveal();
+});
+
+function startBriefing(){
+  $("briefCategory").textContent=state.round.categoryLabel;
+  $("startingPlayer").textContent=players[state.round.startingIndex];
+  sound("start");showScreen("briefing");
+}
+$("startDiscussion").addEventListener("click",()=>{
+  state.timer=state.round.discussionTime;state.timerPaused=false;
+  $("clueTurnName").textContent=players[state.round.startingIndex];
+  $("turnCounter").textContent=`Start: ${state.round.startingIndex+1} / ${players.length}`;
+  renderTimer();
+  if(state.timer>0)runTimer();
+  sound("start");showScreen("discussion");
+});
+function renderTimer(){
+  $("timer").textContent=state.timer<=0?"∞":`${String(Math.floor(state.timer/60)).padStart(2,"0")}:${String(state.timer%60).padStart(2,"0")}`;
+}
+function runTimer(){
+  clearInterval(state.timerId);
+  if(state.timer<=0)return;
+  state.timerId=setInterval(()=>{
+    if(state.timerPaused)return;
+    state.timer--;renderTimer();
+    if(state.timer<=0){clearInterval(state.timerId);sound("reveal");toast("Time. Vote now.");}
+  },1000);
+}
+$("pauseTimer").addEventListener("click",()=>{
+  if(state.round.discussionTime<=0){toast("No timer is enabled.");return}
+  state.timerPaused=!state.timerPaused;$("pauseTimer").textContent=state.timerPaused?"Resume":"Pause";
+});
+$("finishDiscussion").addEventListener("click",()=>{clearInterval(state.timerId);buildVote();showScreen("vote")});
+
+function buildVote(){
+  state.selectedVote=[];
+  $("lockVote").disabled=true;
+
+  const panel=$("voteGrid").parentElement;
+  panel.querySelectorAll(".vote-selection-note").forEach(n=>n.remove());
+
+  const note=document.createElement("div");
+  note.className="vote-selection-note";
+  note.textContent=state.round.randomImposters
+    ?"Random imposter count: select every player you suspect is an imposter."
+    :`Select exactly ${state.round.actualImposterCount} player${state.round.actualImposterCount>1?"s":""}.`;
+  panel.insertBefore(note,$("voteGrid"));
+
+  const grid=$("voteGrid");
+  grid.innerHTML="";
+  grid.classList.add("multi");
+
+  players.forEach((name,i)=>{
+    const b=document.createElement("button");
+    b.className="vote-btn";
+    b.dataset.id=i;
+    b.innerHTML=`${escapeHtml(name)}<small>Player ${i+1}</small>`;
+
+    b.addEventListener("click",()=>{
+      const id=Number(b.dataset.id);
+      const idx=state.selectedVote.indexOf(id);
+
+      if(idx>=0){
+        state.selectedVote.splice(idx,1);
+      }else{
+        if(!state.round.randomImposters && state.selectedVote.length>=state.round.actualImposterCount){
+          toast(`Select exactly ${state.round.actualImposterCount}.`);
+          return;
+        }
+        state.selectedVote.push(id);
+      }
+
+      grid.querySelectorAll(".vote-btn").forEach(btn=>{
+        const bid=Number(btn.dataset.id);
+        const selected=state.selectedVote.includes(bid);
+        btn.classList.toggle("selected",selected);
+        btn.querySelector("small").textContent=`${selected?"Selected · ":""}Player ${bid+1}`;
+      });
+
+      $("lockVote").disabled=state.round.randomImposters
+        ? state.selectedVote.length<1
+        : state.selectedVote.length!==state.round.actualImposterCount;
+    });
+
+    grid.appendChild(b);
+  });
+}
+$("lockVote").addEventListener("click",()=>{
+  if(!state.selectedVote.length)return;
+  if(!state.round.randomImposters && state.selectedVote.length!==state.round.actualImposterCount){
+    toast(`Select exactly ${state.round.actualImposterCount}.`);
+    return;
+  }
+
+  state.round.vote=[...state.selectedVote];
+  state.caughtIds=state.round.vote.filter(i=>state.round.imposterIds.has(i));
+  state.uncaughtIds=[...state.round.imposterIds].filter(i=>!state.round.vote.includes(i));
+  state.caught=state.caughtIds.length>0;
+  state.allCaught=state.uncaughtIds.length===0;
+  sound("reveal");
+
+  $("verdictIcon").textContent=state.caught?"✓":"✕";
+  $("verdictTitle").textContent=state.caught
+    ?`${state.caughtIds.map(i=>players[i]).join(", ")} ${state.caughtIds.length>1?"were":"was"} caught.`
+    :"No imposter was caught.";
+
+  $("verdictText").textContent=state.caught
+    ?(state.allCaught
+      ?"All imposters were caught. The caught imposter(s) get a final chance to guess the secret word."
+      :`${state.uncaughtIds.map(i=>players[i]).join(", ")} ${state.uncaughtIds.length>1?"remain":"remains"} hidden. The caught imposter(s) get a final guess.`)
+    :"Every selected player was innocent. The imposter side wins immediately.";
+
+  $("verdictRole").className=`role ${state.caught?"civilian":"imposter"}`;
+  $("verdictRole").innerHTML=state.caught
+    ?`<div class="role-name">Vote result</div><div class="role-main" style="color:var(--good)">Caught</div><div class="small" style="margin-top:6px">${escapeHtml(state.caughtIds.map(i=>players[i]).join(", "))}</div>`
+    :`<div class="role-name">Vote result</div><div class="role-main" style="color:var(--danger)">Missed</div><div class="small" style="margin-top:6px">None of the selected players was an imposter.</div>`;
+
+  $("revealSolution").textContent=state.caught
+    ?"Reveal & give caught imposter(s) their guess"
+    :"Reveal imposter";
+  showScreen("verdict");
+});
+$("revealSolution").addEventListener("click",()=>{
+  if(state.caught){
+    sound("pass");
+    $("guessInput").value="";
+    $("guessInput").placeholder=`${state.caughtIds.length>1?"Caught imposters":"Caught imposter"}: guess the secret word`;
+    showScreen("guess");
+  }else{
+    state.winner="imposter";
+    finishRound({guessCorrect:false,reason:"missed"});
+  }
+});
+$("submitGuess").addEventListener("click",()=>{
+  const guess=$("guessInput").value.trim();
+  if(!guess){toast("Enter a guess first.");return}
+  const correct=guess.localeCompare(state.round.word,undefined,{sensitivity:"accent"})===0;
+  state.winner=correct?"imposter":"crew";
+  sound(correct?"win":"reveal");
+  finishRound({guessCorrect:correct,reason:"caught"});
+});
+function finishRound(outcome={guessCorrect:false,reason:"unknown"}){
+  const imposters=[...state.round.imposterIds];
+  const imposterNames=imposters.map(i=>players[i]);
+  const caughtIds=state.caughtIds||[];
+  const uncaughtIds=imposters.filter(i=>!caughtIds.includes(i));
+  const points={};
+
+  // +3 imposter points:
+  // - all imposters if nobody is caught;
+  // - all imposters if a caught imposter guesses the word correctly;
+  // - only uncaught imposters if the caught imposter guesses incorrectly.
+  const imposterSideWon=outcome.guessCorrect===true || outcome.reason==="missed";
+
+  if(imposterSideWon){
+    imposters.forEach(i=>{
+      scores[players[i]]=(scores[players[i]]||0)+3;
+      points[players[i]]=3;
+    });
+  }else{
+    uncaughtIds.forEach(i=>{
+      scores[players[i]]=(scores[players[i]]||0)+3;
+      points[players[i]]=3;
+    });
+
+    // Crew earns +1 when the imposter side ultimately loses.
+    players.forEach((n,i)=>{
+      if(!state.round.imposterIds.has(i)){
+        scores[n]=(scores[n]||0)+1;
+        points[n]=1;
+      }
+    });
+  }
+
+  save();
+
+  $("resultIcon").textContent=imposterSideWon?"🕵️":"✓";
+  $("resultKicker").textContent=imposterSideWon?"Imposter wins":"Crew wins";
+  $("resultTitle").textContent=imposterSideWon
+    ?"The imposter side wins."
+    :"The imposter side loses.";
+
+  $("resultText").textContent=outcome.guessCorrect
+    ?"An imposter was caught, but the secret word was guessed correctly. Every imposter gets the win."
+    :outcome.reason==="missed"
+      ?"The group selected only innocent players, so every imposter gets the win."
+      :caughtIds.length
+        ?"The caught imposter's guess was wrong. Any imposter who was not caught still gets the imposter point."
+        :"The imposter side loses this round.";
+
+  $("resultWord").textContent=state.round.word;
+  $("resultImposter").textContent=imposterNames.join(", ");
+  $("resultHint").textContent=$("revealHint").checked
+    ?`Hint shown to imposter: ${state.round.hint}`
+    :"";
+
+  const sorted=[...players].sort((a,b)=>(scores[b]||0)-(scores[a]||0));
+  $("scoreTable").innerHTML=sorted.map(n=>
+    `<div class="score-row"><div>${escapeHtml(n)} ${points[n]?`<span class="small">(+${points[n]})</span>`:""}</div><b>${scores[n]||0}</b></div>`
+  ).join("");
+
+  showScreen("result");
+}
+$("newRound").addEventListener("click",()=>startGame());
+$("backSetup").addEventListener("click",()=>{clearInterval(state.timerId);showScreen("setup");});
+
+populateCategories();renderPlayers();
+
+/* Prevent accidental browser back from destroying state during a reveal. */
+window.addEventListener("beforeunload",()=>clearInterval(state.timerId));
+</script>
+</body>
+</html>
