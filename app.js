@@ -184,7 +184,7 @@ function getSelectedCategories(){
 
 const MODE_NOTES = {
   classic:"Classic — the imposter is told they are the imposter and gets a one-word hint to bluff with.",
-  blank:"Blank — the imposter is told they are the imposter and gets nothing at all. Pure bluffing, much harder.",
+  blank:"Blank — the imposter is told they are the imposter and gets no hint, only the category. Pure bluffing, much harder.",
   undercover:"Undercover — the imposter is quietly given a different word from the same category and is never told they are the imposter. They only find out at the reveal."
 };
 function applyModeUI(){
@@ -241,7 +241,7 @@ function startGame(){
   state.round = {
     roster: roundRoster,
     categories: selectedCategories,
-    categoryLabel: selectedCategories.length === 1 ? selectedCategories[0] : "Mixed",
+    category: entry.category,
     word: entry.word,
     mode,
     hint: mode === "classic" ? (entry.hints[$("difficulty").value] || entry.hints.medium) : null,
@@ -280,6 +280,7 @@ function prepareReveal(){
 
   $("revealSub").textContent = `Player ${i+1} of ${list.length} — hand the phone to ${name}.`;
   $("backPlayer").textContent = name.toUpperCase();
+  $("frontCategory").textContent = state.round.category;
 
   if(isImposter && mode === "undercover"){
     /* Looks exactly like a normal card. That is the whole point. */
@@ -349,7 +350,7 @@ function renderChaosCard(cardId, nameId, ruleId){
   }
 }
 function renderBriefing(){
-  $("briefCategory").textContent = state.round.categoryLabel;
+  $("briefCategory").textContent = state.round.category;
   $("startingPlayer").textContent = roster()[state.round.startingIndex];
   renderChaosCard("briefChaos","briefChaosName","briefChaosRule");
 }

@@ -70,6 +70,7 @@ textarea{min-height:100px;resize:vertical}
 .face.back{background:linear-gradient(145deg,#1a1e28,#0f1218)}
 .face.front{transform:rotateY(180deg);background:linear-gradient(145deg,#f4f6f9,#cfd6e0);color:#0a0d12}
 .face .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:900;opacity:.6;margin-bottom:10px}
+.category-tag{position:absolute;top:18px;left:18px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#4a5361;background:rgba(10,13,18,.07);border:1px solid rgba(10,13,18,.14);padding:5px 10px;border-radius:999px}
 .face .secret{font-size:clamp(38px,10vw,64px);font-weight:900;letter-spacing:-.05em;line-height:1}
 .face .hint{font-size:16px;margin-top:14px;font-weight:750}
 .face.back .secret{font-size:30px}
@@ -119,6 +120,7 @@ textarea{min-height:100px;resize:vertical}
   #reveal .hero .kicker{margin-bottom:5px}
   #reveal .hero .subtitle{font-size:12.5px;line-height:1.4}
   .face{padding:20px;border-radius:22px}
+  .category-tag{top:12px;left:12px;font-size:9px;padding:4px 8px}
   .face .secret{font-size:clamp(30px,8.5vw,50px)}
   .face.back .secret{font-size:25px}
   .face .hint{font-size:14px;margin-top:10px}
